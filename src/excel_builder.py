@@ -34,7 +34,7 @@ HEADER_FOR_REQUESTS_PAGES = [
     "Observaciones de la solicitud"
 ]
 
-HEADER_FOR_LICENSES_PAGES = [
+HEADER_FOR_LICENSES_PAGE = [
     "Solicitud",
     "Convocatoria Bolsa Concursal",
     "N. Comité",
@@ -64,6 +64,10 @@ CONSOLIDATED_HEADER = [
     "Docente",
     "Monto Solicitado",
     "Facultad"
+]
+
+WIDTHS_23 = [
+    12, 18, 12, 18, 25, 20, 18, 30, 15, 18, 20, 30, 50, 18, 40, 35, 30, 25, 20, 25, 18, 18, 30
 ]
 
 def create_header_style():
@@ -150,3 +154,103 @@ def adjust_column_width(worksheet, column = None):
 
                 max_length = min(max_length, 57)
                 worksheet.column_dimensions[column_letter].width = max_length + 5
+
+def set_default_row_height(worksheet, height=35):
+    """
+    Establece altura por defecto para todas las filas.
+    """
+    
+    worksheet.sheet_format.defaultRowHeight = height
+    for row in range(1, worksheet.max_row + 200):  # +200 por si crecen
+        worksheet.row_dimensions[row].height = height
+
+def create_paid_licenses_page(workbook):
+    """
+    Create the 'Lic. Remunerada' Page in Excel.
+    """
+
+    worksheet = workbook.create_sheet("Lic. Remunerada")
+    for column_idx, header in enumerate(HEADER_FOR_LICENSES_PAGE, 1):
+        cell = worksheet.cell(row = 1, column = column_idx, value = header)
+        apply_style_to_header(cell)
+
+    set_default_row_height(worksheet, 40)
+    adjust_column_width(worksheet, WIDTHS_23)
+    return worksheet
+
+
+
+def create_consolidated_page(workbook):
+    """
+    Creating the 'Consolidado' Page in Excel
+    """
+
+    worksheet = workbook.create_sheet("Consolidado")
+    for column_idx, header in enumerate(CONSOLIDATED_HEADER, 1):
+        cell = worksheet.cell(row = 1, column = column_idx, value = header)
+        apply_style_to_header(cell)
+    
+    set_default_row_height(worksheet, 35)
+    adjust_column_width(worksheet, [25, 20, 20])
+    return worksheet
+
+
+
+def create_requests_pages(workbook, name):
+    """
+    Create the 'Solicitudes' Page in Excel.
+    """
+
+    worksheet = workbook.create_sheet(name)
+    for column_idx, header in enumerate(HEADER_FOR_REQUESTS_PAGES, 1):
+        cell = worksheet.cell(row = 1, column = column_idx, value = header)
+        apply_style_to_header(cell)
+
+    widths = [
+        12,  
+        18, 
+        12,  
+        18, 
+        25,  
+        20,  
+        18, 
+        30,  
+        15,  
+        18, 
+        20, 
+        30,  
+        50,  
+        18, 
+        40, 
+        35,   
+        30,  
+        25,   
+        20,  
+        25,  
+        18,
+        18,  
+        30   
+    ]
+
+    set_default_row_height(worksheet, 40)
+    adjust_column_width(worksheet, widths)
+    return worksheet
+
+
+
+def create_empty_excel(route_to_save):
+    """
+    Creating Excel Archive with the 4 required sheets.
+    """
+
+    workbook = Workbook()
+    workbook.remove(workbook.active)
+
+    create_paid_licenses_page(workbook)
+    create_consolidated_page(workbook)
+    create_requests_pages(workbook, f"Solicitudes BC 2026 - 1")
+    create_requests_pages(workbook, f"Solicitudes BC 2026 - 2")
+
+    workbook.save(route_to_save)
+    return route_to_save
+
