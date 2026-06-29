@@ -105,4 +105,48 @@ def create_content_style():
     
     return font, alignment, border
 
-def apply_style_to_header():
+def apply_style_to_header(cell):
+    """
+    Apply the Style to the Excel Header.
+    """
+
+    font, fill, alignment, border = create_header_style()
+
+    cell.font = font
+    cell.fill = fill
+    cell.alignment = alignment
+    cell.border = border
+
+def apply_style_to_content(cell):
+    """
+    Apply the Style to the Excel Content.
+    """
+
+    font, alignment, border = create_content_style()
+
+    cell.font = font
+    cell.alignment = alignment
+    cell.border = border
+
+def adjust_column_width(worksheet, column = None):
+    """
+    Adjust the width of the columns in the Excel.
+    """
+
+    if column:
+        for i, ancho in enumerate(column, 1):
+            letter = get_column_letter(i)
+            worksheet.column_dimensions[letter].width = ancho
+    else:
+        for column in worksheet.columns:
+            max_length = 0
+            column_letter = get_column_letter(column[0].column)
+            for cell in column:
+                try:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+                except:
+                    pass
+
+                max_length = min(max_length, 57)
+                worksheet.column_dimensions[column_letter].width = max_length + 5
